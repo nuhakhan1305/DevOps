@@ -1,0 +1,67 @@
+pipeline {
+
+    agent any
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                echo "cloning repo...."
+
+                git branch: 'feature-1',
+                    url: 'https://github.com/nuhakhan1305/DevOps.git'
+            }
+        }
+
+        stage('Combine') {
+            steps {
+                echo "compile"
+
+                sh 'cd week5 && javac Factorial.java TestFactorial.java'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo "test"
+
+                sh 'cd week5 && java TestFactorial'
+            }
+        }
+
+        stage('Run') {
+            steps {
+                echo "run"
+
+                sh 'cd week5 && java Factorial'
+            }
+        }
+
+        stage('Package JAR') {
+            steps {
+                echo "build"
+
+                sh 'cd week5 && jar cfm factorial.jar manifest.txt Factorial.class'
+            }
+        }
+
+        stage('Archive JAR') {
+            steps {
+                echo "deploy"
+
+                archiveArtifacts artifacts: 'week5/factorial.jar'
+            }
+        }
+    }
+
+    post {
+
+        success {
+            echo 'Build, test, run and JAR creation successful and artifact is ready!'
+        }
+
+        failure {
+            echo 'Build or test failed'
+        }
+    }
+}
