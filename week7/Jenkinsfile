@@ -1,7 +1,18 @@
 pipeline {
     agent any
 
+    environment {
+        PATH = "/Users/nuhakhan/.docker/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+    }
+
     stages {
+
+        stage('Check Docker') {
+            steps {
+                sh 'which docker'
+                sh 'docker --version'
+            }
+        }
 
         stage('Build') {
             steps {
