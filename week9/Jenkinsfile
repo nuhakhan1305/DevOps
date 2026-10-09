@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         IMAGE_NAME = 'nuhakhan1305/kubedemoapp:v1'
-        PATH = "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+        PATH = "/Applications/Docker.app/Contents/Resources/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
         KUBECONFIG = '/Users/nuhakhan/.kube/config'
     }
 
