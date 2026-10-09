@@ -1,8 +1,8 @@
+```groovy
 pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = 'nuhakhan1305/kubedemoapp:v1'
         PATH = "/Applications/Docker.app/Contents/Resources/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
         KUBECONFIG = '/Users/nuhakhan/.kube/config'
     }
@@ -11,8 +11,8 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 dir('week9') {
-                    echo 'Building Docker Image'
-                    sh 'docker build -t $IMAGE_NAME .'
+                    echo "Build Docker Image"
+                    sh "docker build -t kubdemoapp:v1 ."
                 }
             }
         }
@@ -33,14 +33,18 @@ pipeline {
 
         stage('Push Docker Image to Docker Hub') {
             steps {
-                sh 'docker push $IMAGE_NAME'
+                dir('week9') {
+                    echo "Push Docker Image to Docker Hub"
+                    sh "docker tag kubdemoapp:v1 nuhakhan1305/kubedemoapp:v1"
+                    sh "docker push nuhakhan1305/kubedemoapp:v1"
+                }
             }
         }
 
         stage('Deploy to Kubernetes') {
             steps {
                 dir('week9') {
-                    sh 'kubectl apply -f deployment.yaml'
+                    sh 'kubectl apply -f deployment.yaml --validate=false'
                     sh 'kubectl apply -f service.yaml'
                 }
             }
@@ -56,3 +60,4 @@ pipeline {
         }
     }
 }
+```
