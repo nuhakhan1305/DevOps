@@ -1,0 +1,52 @@
+
+pipeline {
+    agent any
+
+    environment {
+        PATH =  "/Applications/Docker.app/Contents/Resources/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+        IMAGE_NAME = "nuhakhan1305/week12"
+        IMAGE_TAG = "week12"
+    }
+
+    stages {
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .'
+            }
+        }
+
+        stage('Docker Login and Push') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_TOKEN'
+                )]) {
+                    sh '''
+                        echo "$DOCKER_TOKEN" | docker login -u "$DOCKER_USER" --password-stdin
+                        docker push nuhakhan1305/week12:week12
+                        docker logout
+                    '''
+                }
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                sh 'kubectl apply -f deployment.yaml'
+                sh 'kubectl apply -f service.yaml'
+                sh 'kubectl rollout restart deployment/airway-deployment'
+                sh 'kubectl rollout status deployment/airway-deployment --timeout=120s'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'week12 project deployed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed. Check the Jenkins console logs.'
+        }
+    }
+}
