@@ -1,18 +1,15 @@
-
 pipeline {
     agent any
 
     environment {
         PATH = "/Applications/Docker.app/Contents/Resources/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
-        IMAGE_NAME = "nuhakhan1305/week12"
-        IMAGE_TAG = "week12"
     }
 
     stages {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ./week12'
+                sh 'docker build -t nuhakhan1305/week12:week12 ./week12'
             }
         }
 
@@ -26,11 +23,12 @@ pipeline {
                     retry(3) {
                         sh '''
                             echo "$DOCKER_TOKEN" | docker login -u "$DOCKER_USER" --password-stdin
-                            docker push ${IMAGE_NAME}:${IMAGE_TAG}
+                            docker push nuhakhan1305/week12:week12
                         '''
                     }
                 }
             }
+
             post {
                 always {
                     sh 'docker logout || true'
