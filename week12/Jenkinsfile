@@ -1,3 +1,4 @@
+
 pipeline {
     agent any
 
@@ -11,7 +12,7 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t nuhakhan1305/week12:week12 ./week12'
+                sh 'docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ./week12'
             }
         }
 
@@ -22,11 +23,17 @@ pipeline {
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_TOKEN'
                 )]) {
-                    sh '''
-                        echo "$DOCKER_TOKEN" | docker login -u "$DOCKER_USER" --password-stdin
-                        docker push nuhakhan1305/week12:week12
-                        docker logout
-                    '''
+                    retry(3) {
+                        sh '''
+                            echo "$DOCKER_TOKEN" | docker login -u "$DOCKER_USER" --password-stdin
+                            docker push ${IMAGE_NAME}:${IMAGE_TAG}
+                        '''
+                    }
+                }
+            }
+            post {
+                always {
+                    sh 'docker logout || true'
                 }
             }
         }
